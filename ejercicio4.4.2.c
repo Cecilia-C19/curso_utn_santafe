@@ -43,6 +43,7 @@ void main()
         }
 
         promedio = suma / cantNotasPorAlumno; // calculo y muestro el promedio para el alumno actual
+        printf("La suma de todas las notas ingresadas es: %f\n", suma);
         printf("El promedio del alumno %d es = %f \n", x, promedio);
         sumaPromedioGeneral = sumaPromedioGeneral + promedio; // acumulo promedio, para obtener el promedio general
     }
