@@ -17,10 +17,11 @@ void realizarDeposito(int indiceCliente);
 void realizarExtraccion(int indiceCliente);
 void consultarSaldo(int indiceCliente);
 void mostrarOperacionesYSaldo(int indiceCliente, int cantOperaciones);
+void realizarTransferencia(int indiceCliente);
 
 int main()
 {
-    //COMPLETAR: aca debemos llamar a la funcion que carga los datos de los clientes en los arreglos
+    cargarClientes();//COMPLETAR: aca debemos llamar a la funcion que carga los datos de los clientes en los arreglos
 
     int indiceClienteActual = -1; // en esta variable vamos a almacenar el indice del cliente que inició sesión
                                   // la inicializamos en un valor de índice inválido
@@ -55,34 +56,40 @@ int main()
                     cantidadOperaciones++; // incremento en 1 la cantidad de operaciones realizadas
                     break;
                 case 2:
-                    //COMPLETAR: extracción
+                     realizarExtraccion(indiceClienteActual);//extracción
+                     cantidadOperaciones++;
                     break;
                 case 3:
-                    //COMPLETAR: consulta de saldo
+                    consultarSaldo(indiceClienteActual);// consulta de saldo
+                    cantidadOperaciones++;
                     break;
                 case 4:
-                    //COMPLETAR: mostrar operaciones realizadas y saldo
+                    mostrarOperacionesYSaldo(indiceClienteActual, cantidadOperaciones);//mostrar operaciones realizadas y saldo
                     //  esta acción segun el enunciado no cuenta como operación realizada
                     break;
                 case 5:
+                    realizarTransferencia(indiceClienteActual);
+                    cantidadOperaciones++;
+                    break;             
+                case 6:
                     printf("Sesión finalizada. Gracias.\n\n");
                     break;
                 default:
                     printf("Opción inválida. Por favor, ingrese una opción válida.\n");
                     break;
                 }
-            } while (opcion != 5 && cantidadOperaciones < MAX_OPERACIONES);
+            } while (opcion != 6 && cantidadOperaciones < MAX_OPERACIONES);
             // el menu se repite mientras el cliente no ingrese 5 y la cantidad de operaciones sea menor a la MAX_OPERACIONES (esta variable esta iniclaizada en 0)
 
             if (cantidadOperaciones >= MAX_OPERACIONES)
             {
-                printf("Ha alcanzado el límite de operaciones. Gracias.\n");
+                printf("Ha alcanzado el l%cmite de operaciones. Gracias.\n", 161);
             }
         }
 
         system("pause");
     }
-
+ 
     return 0;
 }
 
@@ -139,9 +146,10 @@ void mostrarMenu()
     printf("\nSeleccione una opción:\n");
     printf("1. Realizar un depósito\n");
     printf("2. Realizar una extracción\n");
-    printf("3. Consultar el saldo de la cuenta\n");
+    printf("3. Consultar el saldo de la cuenta\n");    
     printf("4. Mostrar cantidad de operaciones realizadas y saldo actual\n");
-    printf("5. Salir de la sesión\n");
+    printf("5. Realizar transferencia\n");
+    printf("6. Salir de la sesión\n");
     printf("Opción: ");
 }
 
@@ -202,20 +210,114 @@ int iniciarSesion()
 
 void realizarDeposito(int indiceCliente)
 {
-    //COMPLETAR 
+    float monto;
+    do
+    {
+        printf("Ingrese el monto a depositar: $");
+        scanf("%f", &monto);
+        if (monto <= 0){
+            printf("El monto debe ser positivo.\n");
+        }
+    } while (monto <= 0);
+
+    saldos[indiceCliente] += monto;
+    printf("Depósito realizado. Nuevo saldo: $ %.2f\n", saldos[indiceCliente]);
+    
 }
 
 void realizarExtraccion(int indiceCliente)
 {
-    //COMPLETAR
+    float monto;
+    do
+    {
+        printf("Ingrese el monto a extraer: $");
+        scanf("%f", &monto);
+        if (monto <= 0){
+            printf("El monto debe ser positivo.\n");
+        }
+    } while (monto <= 0);
+
+    if (monto <= saldos[indiceCliente])
+    {
+        saldos[indiceCliente] -= monto;
+        printf("Extracci%cn realizada. Nuevo saldo: $ %.2f\n", 162, saldos[indiceCliente]);
+    }
+    else
+    {
+        printf("El monto ingresado es mayor al saldo en su cuenta.\n");
+    }
 }
 
 void consultarSaldo(int indiceCliente)
 {
-    //COMPLETAR
+    printf("Su saldo actual es: $%.2f\n", saldos[indiceCliente]);
 }
 
 void mostrarOperacionesYSaldo(int indiceCliente, int cantOperaciones)
+
 {
-    //COMPLETAR    
+      printf("Cantidad de operaciones realizadas: %d\n", cantOperaciones);
+      printf("Su saldo actual es: $%.2f\n", saldos[indiceCliente]);
+}
+
+void realizarTransferencia(int indiceCliente)
+{
+
+    int cuentaDestino, indiceCtaDestino, i;
+    float monto;
+    printf("Ingrese el nro. de la cuenta destino:\n");
+    scanf("%d", &cuentaDestino);
+    if (cuentas[indiceCliente] == cuentaDestino)
+    {
+        printf("No puede realizar una transferencia a su propia cuenta");
+    }
+    else
+    {
+
+        for (i = 0; i < MAX_CLIENTES; i++)
+        {
+            if (cuentas[i] == cuentaDestino)
+            {
+                indiceCtaDestino = i;
+                break;
+            }
+        }
+
+        if (i == 10)
+        {
+            printf("Nro de cuenta destino incorrecto");
+        }
+        else
+        {
+            if (estados[indiceCtaDestino] == 0)
+            {
+                printf("Cuenta destino bloqueada, no se puede realizar la transferencia\n");
+            }
+            else
+            {
+
+                do
+                {
+                    printf("Ingrese el monto a transferir: $");
+                    scanf("%f", &monto);
+                    if (monto <= 0)
+                    {
+                        printf("El monto debe ser positivo.\n");
+                    }
+                } while (monto <= 0);
+
+                if (monto <= saldos[indiceCliente])
+                {
+
+                    saldos[indiceCliente] -= monto;
+                    saldos[indiceCtaDestino] += monto;
+                    printf("Trasnferencia realizada. Nuevo saldo: $%.2f\n", saldos[indiceCliente]);
+                }
+                else
+                {
+                    printf("El monto ingresado es mayor al saldo en su cuenta.\n");
+                }
+            }
+        }
+    }
 }
